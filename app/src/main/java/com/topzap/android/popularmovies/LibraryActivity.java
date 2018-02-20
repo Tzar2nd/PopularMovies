@@ -1,22 +1,18 @@
 package com.topzap.android.popularmovies;
 
 import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.content.Context;
-import android.database.Cursor;
+import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
@@ -27,13 +23,12 @@ import android.widget.Toast;
 import com.facebook.stetho.Stetho;
 import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.MovieAdapter;
-import com.topzap.android.popularmovies.data.MovieContract;
 import com.topzap.android.popularmovies.utils.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
 
-public class LibraryActivity extends AppCompatActivity {
+public class LibraryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
     private static final String TAG = LibraryActivity.class.getSimpleName();
 
@@ -50,70 +45,6 @@ public class LibraryActivity extends AppCompatActivity {
     Spinner spinner;
     int spinnerPos;
     String mMovieFilter;
-
-    private LoaderManager.LoaderCallbacks<ArrayList<Movie>> movieLoaderCallbacks =
-            new LoaderManager.LoaderCallbacks<ArrayList<Movie>>() {
-                @Override
-                public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
-                    // Build the TMDB url and begin a new MovieLoader
-                    Log.d(TAG, "onCreateLoader: Movies: Started");
-                    URL url = NetworkUtils.createUrl(mMovieFilter);
-                    startAdapter();
-
-                    switch (id) {
-                        case MOVIE_LOADER_ID:
-                            return new MovieLoader(LibraryActivity.this, url.toString());
-
-                        case FAVORITE_LOADER_ID:
-                            return new FavoriteLoader(LibraryActivity.this);
-
-                        default:
-                            return null;
-                    }
-                }
-
-                @Override
-                public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
-                    // When finished check if the internet is enabled first and that movies has some items
-                    int id = loader.getId();
-                    Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
-                            movies.size() + " - " + loader.getId() + " - Spinner: " + spinnerPos);
-
-                    if (id == MOVIE_LOADER_ID) {
-                        if (!checkInternetConnection()) {
-                            mMovieAdapter.clear();
-                            displayItemsNotFound();
-                        } else {
-                            if (movies.size() > 0) {
-                                displayItemsFound();
-                                mMovieAdapter.addAll(movies);
-                                mMovieAdapter.notifyDataSetChanged();
-                            } else {
-                                mMovieAdapter.clear();
-                                displayItemsNotFound();
-                            }
-                        }
-                    }
-
-                    if(id == FAVORITE_LOADER_ID) {
-                        if (movies.size() > 0) {
-                            displayItemsFound();
-                            mMovieAdapter.addAll(movies);
-                            mMovieAdapter.notifyDataSetChanged();
-                        } else {
-                            mMovieAdapter.clear();
-                            displayItemsNotFound();
-                        }
-                    }
-
-                }
-
-                @Override
-                public void onLoaderReset(Loader loader) {
-                    Log.d(TAG, "onLoaderReset: Movies: Loader Reset called");
-                    mRecyclerView.setAdapter(null);
-                }
-            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +66,12 @@ public class LibraryActivity extends AppCompatActivity {
 
         // Set up RecyclerView and attach the movie adapter. Get the column numbers according to the screen orientation
         mRecyclerView = findViewById(R.id.recyclerview_movies);
+        int numberOfColumns = getResources().getInteger(R.integer.gallery_columns);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        mRecyclerView.setHasFixedSize(true);
         startAdapter();
+
+
 
     }
 
@@ -169,9 +105,7 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void startAdapter() {
-        Log.d(TAG, "startAdapter: Adapter started");
-        int numberOfColumns = getResources().getInteger(R.integer.gallery_columns);
-
+        Log.d(TAG, "startAdapter: Adapter refresh started");
         if (mMovieAdapter == null) {
             mMovieAdapter = new MovieAdapter(this, movies);
         }
@@ -181,8 +115,8 @@ public class LibraryActivity extends AppCompatActivity {
         }
 
         mRecyclerView.setAdapter(mMovieAdapter);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-        mRecyclerView.setHasFixedSize(true);
+        mMovieAdapter.notifyDataSetChanged();
+
     }
 
     // invoked when the activity may be temporarily destroyed, save the instance state here
@@ -200,9 +134,7 @@ public class LibraryActivity extends AppCompatActivity {
         super.onResume();
 
         startAdapter();
-        if(movies.size() == 0) {
-            displayItemsNotFound();
-        }
+
     }
 
     @Override
@@ -266,35 +198,71 @@ public class LibraryActivity extends AppCompatActivity {
         mErrorTextView.setVisibility(View.VISIBLE);
 
         if (mMovieFilter != null) {
-            // Check for an available internet connection before starting the LoaderManager
-            if (checkInternetConnection()) {
-                mErrorTextView.setVisibility(View.INVISIBLE);
-
-                // Start or refresh the Popular / Top Rated Loader
-                if (mMovieFilter.equals("popular") || mMovieFilter.equals("top_rated")) {
-                    if (getLoaderManager().getLoader(MOVIE_LOADER_ID) == null) {
-                        Log.d(TAG, "initializeLoaders: MOVIE_LOADER_ID");
-                        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
-                    } else {
-                        Log.d(TAG, "restartingLoader: MOVIE_LOADER_ID");
-                        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
-                    }
-                }
-            } else {
-                displayItemsNotFound();
-            }
-
-            // Start or Refresh the Favorites Loader (interrogates Cursor instead of Network)
-            if (mMovieFilter.equals("favorites")) {
-                if (getLoaderManager().getLoader(FAVORITE_LOADER_ID) == null) {
-                    Log.d(TAG, "initializeLoaders: FAVORITE_LOADER_ID");
-                    getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, movieLoaderCallbacks);
+            // Start or refresh the Popular / Top Rated Loader
+            if (mMovieFilter.equals("popular") || mMovieFilter.equals("top_rated")) {
+                if (getLoaderManager().getLoader(MOVIE_LOADER_ID) == null) {
+                    Log.d(TAG, "initializeLoaders: MOVIE_LOADER_ID");
+                    getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
                 } else {
-                    Log.d(TAG, "restartLoaders: FAVORITE_LOADER_ID");
-                    getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, movieLoaderCallbacks);
+                    Log.d(TAG, "restartingLoader: MOVIE_LOADER_ID");
+                    getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
                 }
+            }
+        }
+
+        // Start or Refresh the Favorites Loader (interrogates Cursor instead of Network)
+        if (mMovieFilter.equals("favorites")) {
+            if (getLoaderManager().getLoader(FAVORITE_LOADER_ID) == null) {
+                Log.d(TAG, "initializeLoaders: FAVORITE_LOADER_ID");
+                getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
+            } else {
+                Log.d(TAG, "restartLoaders: FAVORITE_LOADER_ID");
+                getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
             }
         }
     }
 
+    @Override
+    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
+        // Build the TMDB url and begin a new MovieLoader
+        Log.d(TAG, "onCreateLoader: Movies: Started");
+        URL url = NetworkUtils.createUrl(mMovieFilter);
+
+        switch (id) {
+            case MOVIE_LOADER_ID:
+                return new MovieLoader(LibraryActivity.this, url.toString());
+
+            case FAVORITE_LOADER_ID:
+                return new FavoriteLoader(LibraryActivity.this);
+
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
+        // When finished check if the internet is enabled first and that movies has some items
+        int id = loader.getId();
+        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
+                movies.size() + " - " + loader.getId() + " - Spinner: " + spinnerPos);
+        mMovieAdapter.clear();
+
+        if (!checkInternetConnection()) {
+            displayItemsNotFound();
+        } else if (movies.size() > 0) {
+            displayItemsFound();
+            mMovieAdapter.addAll(movies);
+            mMovieAdapter.notifyDataSetChanged();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.d(TAG, "onLoaderReset: Movies: Loader Reset called");
+        mRecyclerView.setAdapter(null);
+    }
 }
+
+

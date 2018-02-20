@@ -73,10 +73,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case android.R.id.home:
-                Log.d(TAG, "onOptionsItemSelected: returning onBackPressed()");
-                finish();
-                return true;
             case R.id.menu_favorite: {
                 if (!favorite) {
                     insertFavoriteMovie();
