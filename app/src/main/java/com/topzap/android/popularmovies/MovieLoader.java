@@ -13,19 +13,28 @@ public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
     private static final String TAG = MovieLoader.class.getName();
 
+    boolean isStarted;
+
     // Query URL
     private String url;
 
     public MovieLoader(Context context, String url) {
         super(context);
+        isStarted = true;
         this.url = url;
         Log.d(TAG, "Movie constructor called");
     }
 
     @Override
     protected void onStartLoading() {
-        forceLoad();
         Log.d(TAG, "onStartLoading called");
+
+        // Avoid a forceLoad() if onStartLoading is triggered by the activity lifecycle not on
+        // the user on a back button from a detail activity to the main activity.
+        if (isStarted) {
+            Log.d(TAG, "onStartLoading: forceLoad() called");
+            forceLoad();
+        }
     }
 
     /**
@@ -42,6 +51,7 @@ public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
         }
 
         ArrayList<Movie> movies = NetworkUtils.getMovieData(url);
+        isStarted = false;  // Don't force any unnecesasry lifecycle loads without the constructor being called
         return movies;
     }
 }

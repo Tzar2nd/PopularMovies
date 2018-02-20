@@ -49,8 +49,6 @@ public class LibraryActivity extends AppCompatActivity {
     int spinnerPos;
     String mMovieFilter;
 
-    boolean userIsInteracting;
-
     private LoaderManager.LoaderCallbacks<ArrayList<Movie>> movieLoaderCallbacks =
             new LoaderManager.LoaderCallbacks<ArrayList<Movie>>() {
                 @Override
@@ -58,7 +56,17 @@ public class LibraryActivity extends AppCompatActivity {
                     // Build the TMDB url and begin a new MovieLoader
                     Log.d(TAG, "onCreateLoader: Movies: Started");
                     URL url = NetworkUtils.createUrl(mMovieFilter);
-                    return new MovieLoader(LibraryActivity.this, url.toString());
+
+                    switch (id) {
+                        case MOVIE_LOADER_ID:
+                            return new MovieLoader(LibraryActivity.this, url.toString());
+
+                        case FAVORITE_LOADER_ID:
+                            return new FavoriteLoader(LibraryActivity.this);
+
+                        default:
+                            return null;
+                    }
                 }
 
                 @Override
@@ -66,9 +74,9 @@ public class LibraryActivity extends AppCompatActivity {
                     // When finished check if the internet is enabled first and that movies has some items
                     int id = loader.getId();
                     Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
-                            movies.size() + " - " + loader.getId() + " - " + spinnerPos);
+                            movies.size() + " - " + loader.getId() + " - Spinner: " + spinnerPos);
 
-                    if (id == MOVIE_LOADER_ID && spinnerPos != 2) {
+                    if (id == MOVIE_LOADER_ID) {
                         if (!checkInternetConnection()) {
                             mMovieAdapter.clear();
                             displayItemsNotFound();
@@ -82,9 +90,19 @@ public class LibraryActivity extends AppCompatActivity {
                                 displayItemsNotFound();
                             }
                         }
-                    } else {
-                        initializeLoaders();
                     }
+
+                    if(id == FAVORITE_LOADER_ID) {
+                        if (movies.size() > 0) {
+                            displayItemsFound();
+                            mMovieAdapter.addAll(movies);
+                            mMovieAdapter.notifyDataSetChanged();
+                        } else {
+                            mMovieAdapter.clear();
+                            displayItemsNotFound();
+                        }
+                    }
+
                 }
 
                 @Override
@@ -93,71 +111,7 @@ public class LibraryActivity extends AppCompatActivity {
                     mRecyclerView.setAdapter(null);
                 }
             };
-
-
-    private LoaderManager.LoaderCallbacks<Cursor> favoriteLoaderCallbacks =
-            new LoaderManager.LoaderCallbacks<Cursor>() {
-
-                ArrayList<Movie> favoriteMovies = new ArrayList<>();
-
-                @Override
-                public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                    Log.d(TAG, "onCreateLoader: FavoriteLoader created");
-                    return new CursorLoader(LibraryActivity.this,
-                            MovieContract.MovieEntry.CONTENT_URI,
-                            null,
-                            null,
-                            null,
-                            null);
-                }
-
-                @Override
-                public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                    if (favoriteMovies != null) {
-                        favoriteMovies.clear();
-                    }
-
-                    favoriteMovies = convertFavoritesCursorToArrayList(cursor);
-                    mMovieAdapter.clear();
-
-                    if (favoriteMovies != null) {
-                        Log.d(TAG, "onLoadFinished: Favorites: items found = " + favoriteMovies.size());
-                        mMovieAdapter.addAll(favoriteMovies);
-                        mMovieAdapter.notifyDataSetChanged();
-
-                        displayItemsFound();
-                    } else {
-                        Log.d(TAG, "onLoadFinished: Favorites: items not found");
-                        displayItemsNotFound();
-                    }
-
-                }
-
-                @Override
-                public void onLoaderReset(Loader<Cursor> loader) {
-                    Log.d(TAG, "onLoaderReset: Favorites: reset");
-                    mRecyclerView.setAdapter(null);
-                }
-
-                private ArrayList<Movie> convertFavoritesCursorToArrayList(Cursor cursor) {
-                    cursor.moveToFirst();
-
-                    while (!cursor.isAfterLast()) {
-                        String movieId = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
-                        String title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
-                        String posterUrl = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL));
-                        String plot = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_PLOT));
-                        String userRating = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATING));
-                        String releaseDate = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
-
-                        favoriteMovies.add(new Movie(movieId, title, posterUrl, plot, userRating, releaseDate));
-                        cursor.moveToNext();
-                    }
-
-                    return favoriteMovies;
-                }
-            };
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,19 +175,17 @@ public class LibraryActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (getLoaderManager().getLoader(MOVIE_LOADER_ID) == null ||
-                getLoaderManager().getLoader(FAVORITE_LOADER_ID) == null) {
-            initializeLoaders();
-            startAdapter();
+        Log.d(TAG, "onResume: resuming - " + mMovieFilter);
+        if (mMovieFilter != null && mMovieFilter.equals("favorites")) {
+            //getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
         }
-        Log.d(TAG, "onResume: resuming");
     }
 
     private void startAdapter() {
         Log.d(TAG, "startAdapter: Adapter started");
         int numberOfColumns = getResources().getInteger(R.integer.gallery_columns);
 
-        if(mMovieAdapter == null) {
+        if (mMovieAdapter == null) {
             mMovieAdapter = new MovieAdapter(this, movies);
         }
 
@@ -261,12 +213,6 @@ public class LibraryActivity extends AppCompatActivity {
                     + savedInstanceState.getInt("Spinner", 0));
             spinnerPos = savedInstanceState.getInt("Spinner", 0);
         }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        userIsInteracting = true;
     }
 
     @Override
@@ -302,7 +248,6 @@ public class LibraryActivity extends AppCompatActivity {
             }
         };
         spinner.setSelection(spinnerPos, true);
-
         spinner.setOnItemSelectedListener(spinnerSelectedListener);
 
         String[] filterValue = getResources().getStringArray(R.array.movie_filter_value);
@@ -342,10 +287,10 @@ public class LibraryActivity extends AppCompatActivity {
             if (mMovieFilter.equals("favorites")) {
                 if (getLoaderManager().getLoader(FAVORITE_LOADER_ID) == null) {
                     Log.d(TAG, "initializeLoaders: FAVORITE_LOADER_ID");
-                    getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
+                    getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, movieLoaderCallbacks);
                 } else {
                     Log.d(TAG, "restartLoaders: FAVORITE_LOADER_ID");
-                    getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
+                    getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, movieLoaderCallbacks);
                 }
             }
         }

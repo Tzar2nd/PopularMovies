@@ -25,7 +25,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private String TAG = MovieDetailActivity.class.getSimpleName();
 
     private static final String mIntentFlag = "MOVIE";
-    private static final int CURSOR_LOADER_ID_QUERY = 5;
+    private static final int FAVORITE_LOADER_ID = 2;
 
     private String movieId;
     private Menu menu;
@@ -65,7 +65,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.detail_menu, this.menu);
-        getSupportLoaderManager().initLoader(CURSOR_LOADER_ID_QUERY, null, this);
+        getSupportLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
         return true;
     }
 
@@ -75,10 +75,10 @@ public class MovieDetailActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case android.R.id.home:
                 Log.d(TAG, "onOptionsItemSelected: returning onBackPressed()");
-                onBackPressed();
+                finish();
                 return true;
             case R.id.menu_favorite: {
-                if(!favorite) {
+                if (!favorite) {
                     insertFavoriteMovie();
                 } else {
                     deleteFavoriteMovie();
@@ -114,7 +114,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
             Toast.makeText(this, "URI not recognised: " + uri.toString(), Toast.LENGTH_SHORT).show();
         }
 
-        getSupportLoaderManager().restartLoader(CURSOR_LOADER_ID_QUERY, null, this);
+        getSupportLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
     }
 
     public void deleteFavoriteMovie() {
@@ -126,7 +126,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
         getContentResolver().delete(deleteUri, null, null);
 
         // COMPLETED (3) Restart the loader to re-query for all tasks after a deletion
-        getSupportLoaderManager().restartLoader(CURSOR_LOADER_ID_QUERY, null, this);
+        getSupportLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
     }
 
     @Override
@@ -174,7 +174,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(TAG, "onLoaderReset: ");
     }
 
     public void changeFavoriteIcon(boolean favorited) {
