@@ -1,9 +1,7 @@
 package com.topzap.android.popularmovies;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -75,6 +73,10 @@ public class MovieDetailActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                Log.d(TAG, "onOptionsItemSelected: returning onBackPressed()");
+                onBackPressed();
+                return true;
             case R.id.menu_favorite: {
                 if(!favorite) {
                     insertFavoriteMovie();
@@ -111,6 +113,8 @@ public class MovieDetailActivity extends AppCompatActivity implements
         } else {
             Toast.makeText(this, "URI not recognised: " + uri.toString(), Toast.LENGTH_SHORT).show();
         }
+
+        getSupportLoaderManager().restartLoader(CURSOR_LOADER_ID_QUERY, null, this);
     }
 
     public void deleteFavoriteMovie() {
@@ -181,6 +185,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        Log.d(TAG, "onLoaderReset: ");
     }
 }
