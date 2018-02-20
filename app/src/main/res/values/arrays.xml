@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library Activity Spinner drop down menu options -->
+    <string-array name="movie_filter_array">
+        <item>Popular</item>
+        <item>Top Rated</item>
+        <item>Favorites</item>
+    </string-array>
+
+    <string-array name="movie_filter_value">
+        <item>popular</item>
+        <item>top_rated</item>
+        <item>favorites</item>
+    </string-array>
+</resources>

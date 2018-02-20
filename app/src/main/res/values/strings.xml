@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">TMDB Movie Database</string>
+    <string name="error_no_library_movies_found">No movies found!</string>
+    <string name="movie_poster_icon">Movie poster icon</string>
+    <string name="movie_filter_spinner">Movie Filter Spinner</string>
+    <string name="movie_detail_image">Movie Detail Image</string>
+
+    <string name="lorem_ipsum_one_line">Nullam id dolor id nibh ultricies vehicula ut id elit.</string>
+    <string name="lorem_ipsum_three_lines">Nulla vitae elit libero, a pharetra augue.Donec id elit non
+        mi porta gravida at eget metus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+    <string name="movie_title">Title</string>
+    <string name="movie_release_date">Release Date</string>
+    <string name="movie_user_rating">User Rating</string>
+    <string name="movie_summary">Summary</string>
+    <string name="favourite">Favourite</string>
+
+</resources>

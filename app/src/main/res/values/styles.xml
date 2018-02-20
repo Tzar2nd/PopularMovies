@@ -1,0 +1,38 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:colorBackground">@android:color/background_dark</item>
+        <item name="android:textColorPrimary">@color/colorPrimaryText</item>
+    </style>
+
+    <!-- Action bar style -->
+    <style name="MyActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="android:actionMenuTextColor">@color/actionbarText</item>
+        <item name="android:actionMenuTextAppearance">@color/actionbarText</item>
+    </style>
+
+    <!-- Movie detail description default -->
+    <style name="MovieDetailBody">
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textSize">@dimen/app_text_size</item>
+        <item name="android:layout_marginLeft">@dimen/app_default_margin</item>
+        <item name="android:layout_marginRight">@dimen/app_default_margin</item>
+        <item name="android:textColorHint">@color/colorHintText</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/app_default_margin_small</item>
+    </style>
+
+    <!-- Description header style, inherited from body style -->
+    <style name="MovieDetailHeader" parent="MovieDetailBody">
+        <item name="android:textStyle">bold</item>
+
+    </style>
+
+</resources>
