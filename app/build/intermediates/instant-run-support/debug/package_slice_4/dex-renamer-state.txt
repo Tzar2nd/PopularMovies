@@ -1,4 +1,0 @@
-#Fri Feb 16 20:55:10 GMT 2018
-base.0=/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/transforms/dexMerger/debug/4
-renamed.0=classes.dex
-file.0=/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/transforms/dexMerger/debug/4/classes.dex
