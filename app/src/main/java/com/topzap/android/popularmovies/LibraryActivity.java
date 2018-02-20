@@ -50,7 +50,7 @@ public class LibraryActivity extends AppCompatActivity {
     String mMovieFilter;
 
     boolean userIsInteracting;
-    
+
     private LoaderManager.LoaderCallbacks<ArrayList<Movie>> movieLoaderCallbacks =
             new LoaderManager.LoaderCallbacks<ArrayList<Movie>>() {
                 @Override
@@ -213,11 +213,6 @@ public class LibraryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: pausing");
-
-        // Save the state of the recyclerview including scroll position
-//        mBundleRecyclerViewState = new Bundle();
-//        Parcelable listState = mRecyclerView.getLayoutManager().onSaveInstanceState();
-//        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
     }
 
     @Override
@@ -230,14 +225,6 @@ public class LibraryActivity extends AppCompatActivity {
             startAdapter();
         }
         Log.d(TAG, "onResume: resuming");
-
-
-
-        // Restore recyclerview state including scroll position
-//        if(mBundleRecyclerViewState != null) {
-//            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-//            mRecyclerView.getLayoutManager().onRestoreInstanceState(listState);
-//        }
     }
 
     private void startAdapter() {
@@ -334,8 +321,10 @@ public class LibraryActivity extends AppCompatActivity {
                 // Start or refresh the Popular / Top Rated Loader
                 if (mMovieFilter.equals("popular") || mMovieFilter.equals("top_rated")) {
                     if (getLoaderManager().getLoader(MOVIE_LOADER_ID) == null) {
+                        Log.d(TAG, "initializeLoaders: MOVIE_LOADER_ID");
                         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
                     } else {
+                        Log.d(TAG, "restartingLoader: MOVIE_LOADER_ID");
                         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
                     }
                 }
@@ -346,8 +335,10 @@ public class LibraryActivity extends AppCompatActivity {
             // Start or Refresh the Favorites Loader (interrogates Cursor instead of Network)
             if (mMovieFilter.equals("favorites")) {
                 if (getLoaderManager().getLoader(FAVORITE_LOADER_ID) == null) {
+                    Log.d(TAG, "initializeLoaders: FAVORITE_LOADER_ID");
                     getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
                 } else {
+                    Log.d(TAG, "restartLoaders: FAVORITE_LOADER_ID");
                     getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
                 }
             }

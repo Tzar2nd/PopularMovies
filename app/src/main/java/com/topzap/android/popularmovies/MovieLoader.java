@@ -16,8 +16,6 @@ public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
     // Query URL
     private String url;
 
-    public boolean isRunning;
-
     public MovieLoader(Context context, String url) {
         super(context);
         this.url = url;
@@ -26,7 +24,6 @@ public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
     @Override
     protected void onStartLoading() {
-        isRunning = true;
         forceLoad();
         Log.d(TAG, "onStartLoading called");
     }
@@ -44,10 +41,7 @@ public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
             return null;
         }
 
-
         ArrayList<Movie> movies = NetworkUtils.getMovieData(url);
-        isRunning = false;
         return movies;
-
     }
 }

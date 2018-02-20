@@ -172,6 +172,11 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset: ");
+    }
+
     public void changeFavoriteIcon(boolean favorited) {
         // Set the menuItem to favorite and favorite boolean to true
         if (favorited) {
@@ -181,10 +186,5 @@ public class MovieDetailActivity extends AppCompatActivity implements
             MenuItem favoriteItem = menu.findItem(R.id.menu_favorite);
             favoriteItem.setIcon(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
         }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(TAG, "onLoaderReset: ");
     }
 }
