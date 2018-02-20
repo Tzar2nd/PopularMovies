@@ -31,15 +31,13 @@ import com.topzap.android.popularmovies.utils.NetworkUtils;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class LibraryActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
+public class LibraryActivity extends AppCompatActivity {
 
     private static final String TAG = LibraryActivity.class.getSimpleName();
 
-    // Loader for Network calls that returns an ArrayList of movies
+    // Loader for Network calls that returns an ArrayList of movies from network
+    // and favorites from cursor (then conerted to an ArrayList)
     private static final int MOVIE_LOADER_ID = 1;
-
-    // Loader for Favorites that returns a Cursor of favorite movies
     private static final int FAVORITE_LOADER_ID = 2;
 
     private RecyclerView mRecyclerView;
@@ -49,11 +47,51 @@ public class LibraryActivity extends AppCompatActivity
     private ArrayList<Movie> movies = new ArrayList<>();
     Spinner spinner;
     int spinnerPos;
+    String mMovieFilter;
 
     boolean userIsInteracting;
+    
+    private LoaderManager.LoaderCallbacks<ArrayList<Movie>> movieLoaderCallbacks =
+            new LoaderManager.LoaderCallbacks<ArrayList<Movie>>() {
+                @Override
+                public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
+                    // Build the TMDB url and begin a new MovieLoader
+                    Log.d(TAG, "onCreateLoader: Movies: Started");
+                    URL url = NetworkUtils.createUrl(mMovieFilter);
+                    return new MovieLoader(LibraryActivity.this, url.toString());
+                }
 
-    private final String KEY_RECYCLER_STATE = "recycler_state";
-    private static Bundle mBundleRecyclerViewState;
+                @Override
+                public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
+                    // When finished check if the internet is enabled first and that movies has some items
+                    int id = loader.getId();
+                    Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
+                            movies.size() + " - " + loader.getId() + " - " + spinnerPos);
+
+                    if (id == MOVIE_LOADER_ID) {
+                        if (!checkInternetConnection()) {
+                            mMovieAdapter.clear();
+                            displayItemsNotFound();
+                        } else {
+                            if (movies != null) {
+                                displayItemsFound();
+                                mMovieAdapter.addAll(movies);
+                                mMovieAdapter.notifyDataSetChanged();
+                            } else {
+                                mMovieAdapter.clear();
+                                displayItemsNotFound();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onLoaderReset(Loader loader) {
+                    Log.d(TAG, "onLoaderReset: Movies: Loader Reset called");
+                    mRecyclerView.setAdapter(null);
+                }
+            };
+
 
     private LoaderManager.LoaderCallbacks<Cursor> favoriteLoaderCallbacks =
             new LoaderManager.LoaderCallbacks<Cursor>() {
@@ -117,8 +155,6 @@ public class LibraryActivity extends AppCompatActivity
                     return favoriteMovies;
                 }
             };
-
-    String mMovieFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,9 +257,6 @@ public class LibraryActivity extends AppCompatActivity
         Log.d(TAG, "onSaveInstanceState: Saving Instance State, spinner: " + spinner.getSelectedItemPosition());
 
         outState.putInt("Spinner", spinner.getSelectedItemPosition());
-
-        Parcelable mListState = mRecyclerView.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable(KEY_RECYCLER_STATE, mListState);
     }
 
     @Override
@@ -234,13 +267,6 @@ public class LibraryActivity extends AppCompatActivity
             Log.d(TAG, "onRestoreInstanceState: Restore Instance State, spinner: "
                     + savedInstanceState.getInt("Spinner", 0));
             spinnerPos = savedInstanceState.getInt("Spinner", 0);
-
-            // Adapter initialisation moved to onResume() as the adapter must be reinitialised every
-            // time the user returns to this LibraryActivity
-            startAdapter();
-
-            Parcelable mListState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
-            mRecyclerView.getLayoutManager().onRestoreInstanceState(mListState);
         }
     }
 
@@ -308,9 +334,9 @@ public class LibraryActivity extends AppCompatActivity
                 // Start or refresh the Popular / Top Rated Loader
                 if (mMovieFilter.equals("popular") || mMovieFilter.equals("top_rated")) {
                     if (getLoaderManager().getLoader(MOVIE_LOADER_ID) == null) {
-                        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, LibraryActivity.this);
+                        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
                     } else {
-                        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, LibraryActivity.this);
+                        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, movieLoaderCallbacks);
                     }
                 }
             } else {
@@ -328,41 +354,4 @@ public class LibraryActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
-        // Build the TMDB url and begin a new MovieLoader
-        Log.d(TAG, "onCreateLoader: Movies: Started");
-        URL url = NetworkUtils.createUrl(mMovieFilter);
-        return new MovieLoader(this, url.toString());
-    }
-
-    @Override
-    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
-        // When finished check if the internet is enabled first and that movies has some items
-        int id = loader.getId();
-        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
-                movies.size() + " - " + loader.getId() + " - " + spinnerPos);
-
-        if (id == MOVIE_LOADER_ID) {
-            if (!checkInternetConnection()) {
-                mMovieAdapter.clear();
-                displayItemsNotFound();
-            } else {
-                if (movies != null) {
-                    displayItemsFound();
-                    mMovieAdapter.addAll(movies);
-                    mMovieAdapter.notifyDataSetChanged();
-                } else {
-                    mMovieAdapter.clear();
-                    displayItemsNotFound();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader loader) {
-        Log.d(TAG, "onLoaderReset: Movies: Loader Reset called");
-        mRecyclerView.setAdapter(null);
-    }
 }
