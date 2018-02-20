@@ -68,12 +68,12 @@ public class LibraryActivity extends AppCompatActivity {
                     Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
                             movies.size() + " - " + loader.getId() + " - " + spinnerPos);
 
-                    if (id == MOVIE_LOADER_ID) {
+                    if (id == MOVIE_LOADER_ID && spinnerPos != 2) {
                         if (!checkInternetConnection()) {
                             mMovieAdapter.clear();
                             displayItemsNotFound();
                         } else {
-                            if (movies != null) {
+                            if (movies.size() > 0) {
                                 displayItemsFound();
                                 mMovieAdapter.addAll(movies);
                                 mMovieAdapter.notifyDataSetChanged();
@@ -82,6 +82,8 @@ public class LibraryActivity extends AppCompatActivity {
                                 displayItemsNotFound();
                             }
                         }
+                    } else {
+                        initializeLoaders();
                     }
                 }
 
@@ -230,7 +232,11 @@ public class LibraryActivity extends AppCompatActivity {
     private void startAdapter() {
         Log.d(TAG, "startAdapter: Adapter started");
         int numberOfColumns = getResources().getInteger(R.integer.gallery_columns);
-        mMovieAdapter = new MovieAdapter(this, movies);
+
+        if(mMovieAdapter == null) {
+            mMovieAdapter = new MovieAdapter(this, movies);
+        }
+
         mRecyclerView.setAdapter(mMovieAdapter);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mRecyclerView.setHasFixedSize(true);
