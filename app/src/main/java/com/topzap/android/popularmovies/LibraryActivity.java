@@ -340,7 +340,8 @@ public class LibraryActivity extends AppCompatActivity
     public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
         // When finished check if the internet is enabled first and that movies has some items
         int id = loader.getId();
-        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " + movies.size());
+        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
+                movies.size() + " - " + loader.getId() + " - " + spinnerPos);
 
         if (id == MOVIE_LOADER_ID) {
             if (!checkInternetConnection()) {
