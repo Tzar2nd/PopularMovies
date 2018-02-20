@@ -16,11 +16,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.topzap.android.popularmovies.data.Movie;
@@ -56,6 +58,7 @@ public class LibraryActivity extends AppCompatActivity {
                     // Build the TMDB url and begin a new MovieLoader
                     Log.d(TAG, "onCreateLoader: Movies: Started");
                     URL url = NetworkUtils.createUrl(mMovieFilter);
+                    startAdapter();
 
                     switch (id) {
                         case MOVIE_LOADER_ID:
@@ -111,7 +114,7 @@ public class LibraryActivity extends AppCompatActivity {
                     mRecyclerView.setAdapter(null);
                 }
             };
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,28 +168,16 @@ public class LibraryActivity extends AppCompatActivity {
         mErrorTextView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: pausing");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Log.d(TAG, "onResume: resuming - " + mMovieFilter);
-        if (mMovieFilter != null && mMovieFilter.equals("favorites")) {
-            //getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, favoriteLoaderCallbacks);
-        }
-    }
-
     private void startAdapter() {
         Log.d(TAG, "startAdapter: Adapter started");
         int numberOfColumns = getResources().getInteger(R.integer.gallery_columns);
 
         if (mMovieAdapter == null) {
             mMovieAdapter = new MovieAdapter(this, movies);
+        }
+
+        if (mMovieFilter != null && mMovieFilter.equals("favorites")) {
+            mMovieAdapter.clear();
         }
 
         mRecyclerView.setAdapter(mMovieAdapter);
@@ -202,6 +193,16 @@ public class LibraryActivity extends AppCompatActivity {
         Log.d(TAG, "onSaveInstanceState: Saving Instance State, spinner: " + spinner.getSelectedItemPosition());
 
         outState.putInt("Spinner", spinner.getSelectedItemPosition());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        startAdapter();
+        if(movies.size() == 0) {
+            displayItemsNotFound();
+        }
     }
 
     @Override
@@ -231,7 +232,7 @@ public class LibraryActivity extends AppCompatActivity {
                         R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setSelection(spinnerPos, false);
+        spinner.setSelection(spinnerPos);
 
         AdapterView.OnItemSelectedListener spinnerSelectedListener = new AdapterView.OnItemSelectedListener() {
             @Override

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class MovieLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
-    private static final String TAG = MovieLoader.class.getName();
+    private static final String TAG = MovieLoader.class.getSimpleName();
 
     boolean isStarted;
 

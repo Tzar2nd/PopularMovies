@@ -37,6 +37,7 @@ public class FavoriteLoader extends AsyncTaskLoader<ArrayList<Movie>> {
                 null,
                 null);
 
+        // Convert the cursor to an ArrayList for output to the Loader
         favoriteMovies = convertFavoritesCursorToArrayList(cursor);
         return favoriteMovies;
     }

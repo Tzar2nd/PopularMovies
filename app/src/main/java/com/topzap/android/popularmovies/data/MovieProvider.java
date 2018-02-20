@@ -57,6 +57,7 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
                 return cursor;
             }
 
@@ -69,6 +70,7 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
                 return cursor;
             }
 
@@ -147,6 +149,7 @@ public class MovieProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
+        getContext().getContentResolver().notifyChange(uri, null);
         return numDeleted;
     }
 

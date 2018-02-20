@@ -118,8 +118,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     public void deleteFavoriteMovie() {
-        ContentValues contentValues = new ContentValues();
-
         Uri deleteUri = Uri.withAppendedPath(MovieContract.MovieEntry.CONTENT_URI, movieId);
 
         // COMPLETED (2) Delete a single row of data using a ContentResolver
