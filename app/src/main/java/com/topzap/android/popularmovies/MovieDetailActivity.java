@@ -1,9 +1,11 @@
 package com.topzap.android.popularmovies;
 
+import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.content.Loader;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +19,10 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.MovieContract;
+import com.topzap.android.popularmovies.data.Review;
+import com.topzap.android.popularmovies.utils.NetworkUtils;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 public class MovieDetailActivity extends AppCompatActivity implements
@@ -27,6 +32,8 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     private static final String mIntentFlag = "MOVIE";
     private static final int FAVORITE_LOADER_ID = 2;
+
+    private static final ArrayList<Review> reviews = new ArrayList<>();
 
     private String movieId;
     private Menu menu;
@@ -60,7 +67,36 @@ public class MovieDetailActivity extends AppCompatActivity implements
             userRatingTextView.setText(currentMovie.getUserRating());
             moviePlotTextView.setText(currentMovie.getPlot());
         }
+
+        new getReviewsTask().execute(movieId);
     }
+
+
+    public static class getReviewsTask extends AsyncTask<String, Void, ArrayList<Review>> {
+
+        private static final String TAG = MovieDetailActivity.class.getClass().getSimpleName();
+
+        @Override
+        protected ArrayList<Review> doInBackground(String... movieId) {
+            ArrayList<Review> reviewResult = new ArrayList<>();
+
+            URL reviewUrl = NetworkUtils.createReviewUrl(movieId[0]);
+            reviewResult.addAll(NetworkUtils.getReviewData(reviewUrl.toString()));
+
+            Log.d(TAG, "doInBackground: reviewsSize " + reviewResult.size());
+
+            return reviewResult;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Review> reviewResult) {
+            reviews.addAll(reviewResult);
+            for (Review review: reviews) {
+                Log.d(TAG, "onPostExecute: " + review.getAuthor());
+            }
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -154,7 +190,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
                 showFavoriteIcon(favorite);
             }
         }
-
     }
 
     @Override

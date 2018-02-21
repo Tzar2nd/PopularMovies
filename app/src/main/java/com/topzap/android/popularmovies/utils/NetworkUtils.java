@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.topzap.android.popularmovies.BuildConfig;
 import com.topzap.android.popularmovies.data.Movie;
+import com.topzap.android.popularmovies.data.Review;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ public final class NetworkUtils {
     private static final String MOVIE_BASE_URL = "api.themoviedb.org";
     private static final String MOVIE_API_VERSION = "3";
     private static final String MOVIE_BASE_CATEGORY = "movie";
+    private static final String MOVIE_BASE_REVIEWS = "reviews";
     private static final String MOVIE_API_TAG = "api_key";
 
     // TODO: Udacity please enter your TMDB API key in your gradle.properties file
@@ -50,6 +52,22 @@ public final class NetworkUtils {
      */
 
     public static ArrayList<Movie> getMovieData(String stringUrl) {
+
+        String jsonResponse = getJsonResponse(stringUrl);
+
+        // Extract the relevant fields from the JSON response and create a list of movies
+        ArrayList<Movie> movies = extractMovieDataFromJSON(jsonResponse);
+        return movies;
+    }
+
+    public static ArrayList<Review> getReviewData(String stringUrl) {
+        String jsonResponse = getJsonResponse(stringUrl);
+
+        ArrayList<Review> reviews = extractReviewDataFromJSON(jsonResponse);
+        return reviews;
+    }
+
+    private static String getJsonResponse(String stringUrl) {
         // Create URL object
         URL url = null;
         try {
@@ -67,10 +85,32 @@ public final class NetworkUtils {
             Log.e(TAG, "Error making the HTTP request", e);
         }
 
-        // Extract the relevant fields from the JSON response and create a list of movies
-        ArrayList<Movie> movies = extractMovieDataFromJSON(jsonResponse);
+        return jsonResponse;
+    }
 
-        return movies;
+    private static ArrayList<Review> extractReviewDataFromJSON(String reviewJSON) {
+        ArrayList<Review> reviews = new ArrayList<>();
+
+        try {
+            JSONObject jsonObject = new JSONObject(reviewJSON);
+            JSONArray jsonReviews = jsonObject.getJSONArray("results");
+
+            for (int i = 0; i < jsonReviews.length(); i++) {
+                JSONObject jsonReview = jsonReviews.getJSONObject(i);
+
+                String reviewId = jsonReview.getString("id");
+                String author = jsonReview.getString("author");
+                String content = jsonReview.getString("content");
+                String url = jsonReview.getString("url");
+
+                reviews.add(new Review(reviewId, author, content, url));
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Problem with parsing JSON Review result");
+        }
+
+        return reviews;
     }
 
     private static ArrayList<Movie> extractMovieDataFromJSON(String movieJSON) {
@@ -123,7 +163,7 @@ public final class NetworkUtils {
      * @return url
      */
 
-    public static URL createUrl(String movieFilter) {
+    public static URL createMovieUrl(String movieFilter) {
         Uri.Builder builder = new Uri.Builder();
 
         // Obtain the API key from the resources without passing through the context
@@ -141,7 +181,36 @@ public final class NetworkUtils {
             e.printStackTrace();
         }
 
-        Log.v(TAG, "Built URI " + url);
+        Log.v(TAG, "Built Movie URI " + url);
+
+        return url;
+    }
+
+    /**
+     * Builds the Review URL and returns it
+     * @param movieId
+     * @return
+     */
+
+    public static URL createReviewUrl(String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+
+        builder.scheme(MOVIE_BASE_SCHEME)
+                .authority(MOVIE_BASE_URL)
+                .appendPath(MOVIE_API_VERSION)
+                .appendPath(MOVIE_BASE_CATEGORY)
+                .appendPath(movieId)
+                .appendPath(MOVIE_BASE_REVIEWS)
+                .appendQueryParameter(MOVIE_API_TAG, MOVIE_API_KEY);
+
+        URL url = null;
+        try {
+            url = new URL(builder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "Built Review URI " + url);
 
         return url;
     }

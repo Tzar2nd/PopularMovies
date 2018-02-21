@@ -26,7 +26,6 @@ import com.topzap.android.popularmovies.utils.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.zip.InflaterInputStream;
 
 public class LibraryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
@@ -265,7 +264,7 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
 
         // If there is no internet connection abandon the loader
 
-        URL url = NetworkUtils.createUrl(mMovieFilter);
+        URL url = NetworkUtils.createMovieUrl(mMovieFilter);
 
         switch (id) {
             case MOVIE_LOADER_ID:
