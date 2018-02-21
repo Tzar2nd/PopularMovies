@@ -72,7 +72,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
 
         @Override
         public void onClick(View v) {
-            // TODO: Display the full review in a dialog box
             Review currentReview = mReviews.get(getAdapterPosition());
 
             Dialog dialog = new Dialog(mContext, R.style.Theme_AppCompat_Light_Dialog_Alert) {

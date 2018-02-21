@@ -90,6 +90,22 @@
                 tools:text="@string/lorem_ipsum_three_lines"
                 />
 
+
+            <TextView
+                android:id="@+id/trailers_header"
+                style="@style/MovieDetailHeader"
+                android:textSize="16sp"
+                android:textColor="@color/colorSubHeaders"
+                android:text="@string/trailers_header"
+                />
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
             <TextView
                 android:id="@+id/reviews_header"
                 style="@style/MovieDetailHeader"
@@ -103,6 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
+
 
 
         </LinearLayout>

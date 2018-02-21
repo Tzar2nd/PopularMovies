@@ -6,6 +6,7 @@ import android.util.Log;
 import com.topzap.android.popularmovies.BuildConfig;
 import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.Review;
+import com.topzap.android.popularmovies.data.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,14 +29,13 @@ public final class NetworkUtils {
     private static final String MOVIE_BASE_URL = "api.themoviedb.org";
     private static final String MOVIE_API_VERSION = "3";
     private static final String MOVIE_BASE_CATEGORY = "movie";
+    private static final String MOVIE_BASE_TRAILERS = "trailers";
     private static final String MOVIE_BASE_REVIEWS = "reviews";
     private static final String MOVIE_API_TAG = "api_key";
 
     // TODO: Udacity please enter your TMDB API key in your gradle.properties file
     private static final String MOVIE_API_KEY = BuildConfig.API_KEY;
-
     private static final String MOVIE_CHAR_SET = "UTF-8";
-
     private static final String MOVIE_IMAGE_URL_PREFIX = "http://image.tmdb.org/t/p/w185/";
 
     private String movieFilter;
@@ -65,6 +65,13 @@ public final class NetworkUtils {
 
         ArrayList<Review> reviews = extractReviewDataFromJSON(jsonResponse);
         return reviews;
+    }
+
+    public static ArrayList<Trailer> getTrailerData(String stringUrl) {
+        String jsonResponse = getJsonResponse(stringUrl);
+
+        ArrayList<Trailer> trailers = extractTrailerDataFromJSON(jsonResponse);
+        return trailers;
     }
 
     private static String getJsonResponse(String stringUrl) {
@@ -111,6 +118,30 @@ public final class NetworkUtils {
         }
 
         return reviews;
+    }
+
+    private static ArrayList<Trailer> extractTrailerDataFromJSON(String trailerJSON) {
+        ArrayList<Trailer> trailers = new ArrayList<>();
+
+        try {
+            JSONObject jsonObject = new JSONObject(trailerJSON);
+            JSONArray jsonTrailers = jsonObject.getJSONArray("youtube");
+
+            for (int i = 0; i < jsonTrailers.length(); i++) {
+                JSONObject jsonTrailer = jsonTrailers.getJSONObject(i);
+
+                String name = jsonTrailer.getString("name");
+                String author = jsonTrailer.getString("size");
+                String source = jsonTrailer.getString("content");
+                String type = jsonTrailer.getString("type");
+
+                trailers.add(new Trailer(name, author, source, type));
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Problem with parsing JSON trailer results");
+        }
+
+        return trailers;
     }
 
     private static ArrayList<Movie> extractMovieDataFromJSON(String movieJSON) {
@@ -189,7 +220,7 @@ public final class NetworkUtils {
     /**
      * Builds the Review URL and returns it
      * @param movieId
-     * @return
+     * @return url
      */
 
     public static URL createReviewUrl(String movieId) {
@@ -201,6 +232,35 @@ public final class NetworkUtils {
                 .appendPath(MOVIE_BASE_CATEGORY)
                 .appendPath(movieId)
                 .appendPath(MOVIE_BASE_REVIEWS)
+                .appendQueryParameter(MOVIE_API_TAG, MOVIE_API_KEY);
+
+        URL url = null;
+        try {
+            url = new URL(builder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "Built Review URI " + url);
+
+        return url;
+    }
+
+    /**
+     * Builds the Trailers URL and returns it
+     * @param movieId
+     * @return url
+     */
+
+    public static URL createTrailerUrl(String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+
+        builder.scheme(MOVIE_BASE_SCHEME)
+                .authority(MOVIE_BASE_URL)
+                .appendPath(MOVIE_API_VERSION)
+                .appendPath(MOVIE_BASE_CATEGORY)
+                .appendPath(movieId)
+                .appendPath(MOVIE_BASE_TRAILERS)
                 .appendQueryParameter(MOVIE_API_TAG, MOVIE_API_KEY);
 
         URL url = null;

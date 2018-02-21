@@ -90,13 +90,13 @@ public final class R {
         public static final int notification_background = 0x7f08004e;
         public static final int notification_main_column = 0x7f08004f;
         public static final int notification_main_column_container = 0x7f080050;
-        public static final int right_icon = 0x7f080064;
-        public static final int right_side = 0x7f080065;
-        public static final int status_bar_latest_event_content = 0x7f080081;
-        public static final int text = 0x7f080085;
-        public static final int text2 = 0x7f080086;
-        public static final int time = 0x7f08008a;
-        public static final int title = 0x7f08008b;
+        public static final int right_icon = 0x7f080063;
+        public static final int right_side = 0x7f080064;
+        public static final int status_bar_latest_event_content = 0x7f080080;
+        public static final int text = 0x7f080084;
+        public static final int text2 = 0x7f080085;
+        public static final int time = 0x7f080089;
+        public static final int title = 0x7f08008a;
     }
     public static final class integer {
         public static final int cancel_button_image_alpha = 0x7f090002;

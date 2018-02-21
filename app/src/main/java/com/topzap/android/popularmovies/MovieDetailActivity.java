@@ -1,15 +1,12 @@
 package com.topzap.android.popularmovies;
 
 import android.annotation.SuppressLint;
-import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 import android.content.Loader;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,6 +22,7 @@ import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.MovieContract;
 import com.topzap.android.popularmovies.data.Review;
 import com.topzap.android.popularmovies.data.ReviewAdapter;
+import com.topzap.android.popularmovies.data.Trailer;
 import com.topzap.android.popularmovies.utils.NetworkUtils;
 
 import java.net.URL;
@@ -40,7 +38,8 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private String movieId;
     private Menu menu;
     private boolean favorite = false;
-    private RecyclerView mRecyclerView;
+    private RecyclerView mTrailersRecyclerView;
+    private RecyclerView mReviewsRecyclerView;
 
     ArrayList<Review> reviews = new ArrayList<>();
     Movie currentMovie;
@@ -72,17 +71,39 @@ public class MovieDetailActivity extends AppCompatActivity implements
             moviePlotTextView.setText(currentMovie.getPlot());
         }
 
+        // Set up the YouTube trailers RecyclerView
+        mTrailersRecyclerView = findViewById(R.id.recyclerview_trailers);
+        mTrailersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mTrailersRecyclerView.setNestedScrollingEnabled(false);
+
+        new getMoviesTask().execute(movieId);
+
         // Set up the Reviews RecyclerView
-        mRecyclerView = findViewById(R.id.recyclerview_reviews);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setNestedScrollingEnabled(false);
+        mReviewsRecyclerView = findViewById(R.id.recyclerview_reviews);
+        mReviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mReviewsRecyclerView.setNestedScrollingEnabled(false);
 
         // Launch Async task to obtain data for review recyclerview adpater
         new getReviewsTask().execute(movieId);
     }
 
     /**
-     * Async Task for obtaining reviews.
+     * AsyncTask for obtaining trailers from TMDB JSON
+     */
+
+    public class getTrailersTask extends AsyncTask<String, Void, ArrayList<Trailer>> {
+        private final String TAG = MovieDetailActivity.class.getClass().getSimpleName();
+
+
+        @Override
+        protected ArrayList<Trailer> doInBackground(String... strings) {
+            return null;
+        }
+    }
+
+    /**
+     * AsyncTask for obtaining reviews from TMDB JSON
+     * @returns
      */
 
     @SuppressLint("StaticFieldLeak")
@@ -107,14 +128,8 @@ public class MovieDetailActivity extends AppCompatActivity implements
             reviews.addAll(reviewResult);
 
             ReviewAdapter mReviewAdapter = new ReviewAdapter(MovieDetailActivity.this, reviews);
-            mRecyclerView.setAdapter(mReviewAdapter);
+            mReviewsRecyclerView.setAdapter(mReviewAdapter);
             mReviewAdapter.notifyDataSetChanged();
-
-            for (Review review: reviews) {
-                Log.d(TAG, "onPostExecute: " + review.getAuthor());
-
-
-            }
         }
     }
 
