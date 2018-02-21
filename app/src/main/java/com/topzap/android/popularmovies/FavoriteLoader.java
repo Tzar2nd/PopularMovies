@@ -3,6 +3,7 @@ package com.topzap.android.popularmovies;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.topzap.android.popularmovies.data.Movie;
@@ -13,12 +14,20 @@ import java.util.ArrayList;
 public class FavoriteLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
     private static final String TAG = FavoriteLoader.class.getSimpleName();
+    Uri favoriteUri;
 
     private ArrayList<Movie> favoriteMovies = new ArrayList<>();
 
     public FavoriteLoader(Context context) {
         super(context);
+        favoriteUri = MovieContract.MovieEntry.CONTENT_URI;
         Log.d(TAG, "FavoriteLoader: favorites constructor called");
+    }
+
+    public FavoriteLoader(Context context, Uri uri) {
+        super(context);
+        favoriteUri = uri;
+        Log.d(TAG, "FavoriteLoader: favorites constructor WITH ID called");
     }
 
     @Override
@@ -31,7 +40,7 @@ public class FavoriteLoader extends AsyncTaskLoader<ArrayList<Movie>> {
     public ArrayList<Movie> loadInBackground() {
         Log.d(TAG, "loadInBackground: favorites");
 
-        Cursor cursor = getContext().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+        Cursor cursor = getContext().getContentResolver().query(favoriteUri,
                 null,
                 null,
                 null,

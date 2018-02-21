@@ -60,7 +60,7 @@ public class MovieProvider extends ContentProvider {
                 cursor.setNotificationUri(getContext().getContentResolver(), uri);
                 return cursor;
             }
-
+            
             case FAVORITE_WITH_ID: {
                 cursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_FAVORITES,

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">TMDB Movie Database</string>
-    <string name="error_no_library_movies_found">No movies found!</string>
+    <string name="error_no_library_movies_found">No movies found! Check your internet connection.</string>
     <string name="movie_poster_icon">Movie poster icon</string>
     <string name="movie_filter_spinner">Movie Filter Spinner</string>
     <string name="movie_detail_image">Movie Detail Image</string>
@@ -13,5 +13,7 @@
     <string name="movie_user_rating">User Rating</string>
     <string name="movie_summary">Summary</string>
     <string name="favourite">Favourite</string>
+    <string name="zero_favorites">You have no favorites! Please add a favorite from Popular or Top Movies :)</string>
+    <string name="favorite_added">Favorite added</string>
 
 </resources>

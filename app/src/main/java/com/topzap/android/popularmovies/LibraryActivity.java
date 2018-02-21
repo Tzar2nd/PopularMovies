@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.topzap.android.popularmovies.data.Movie;
@@ -27,6 +26,7 @@ import com.topzap.android.popularmovies.utils.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.zip.InflaterInputStream;
 
 public class LibraryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
@@ -70,9 +70,6 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         mRecyclerView.setHasFixedSize(true);
         startAdapter();
-
-
-
     }
 
     private boolean checkInternetConnection() {
@@ -98,25 +95,48 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
         mErrorTextView.setVisibility(View.INVISIBLE);
     }
 
-    private void displayItemsNotFound() {
+    private void displayNoItemsFound() {
         // Hide progress bar but show error message if no item is found e.g. no connection
         mProgressBar.setVisibility(View.INVISIBLE);
+
+        mErrorTextView.setText(R.string.error_no_library_movies_found);
+        mErrorTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void displayNoFavoritesFound() {
+        // Hide progress bar but show no favorites found message
+        mProgressBar.setVisibility(View.INVISIBLE);
+
+        mErrorTextView.setText(R.string.zero_favorites);
         mErrorTextView.setVisibility(View.VISIBLE);
     }
 
     private void startAdapter() {
         Log.d(TAG, "startAdapter: Adapter refresh started");
+        Log.d(TAG, "startAdapter: movies: " + movies.size());
+
+        int adapterCount;
+        if (mMovieAdapter != null) {
+            adapterCount = mMovieAdapter.getItemCount();
+        } else {
+            adapterCount = 0;
+        }
+
+        Log.d(TAG, "startAdapter: adapterSize: " + adapterCount);
+
         if (mMovieAdapter == null) {
+            Log.d(TAG, "startAdapter: adapter was null - restarting");
             mMovieAdapter = new MovieAdapter(this, movies);
         }
 
-        if (mMovieFilter != null && mMovieFilter.equals("favorites")) {
+        if (mMovieFilter != null && mMovieFilter.equals("favorites") && adapterCount > 0) {
+            Log.d(TAG, "startAdapter: Clearing Adapter");
             mMovieAdapter.clear();
         }
 
+        Log.d(TAG, "startAdapter: setting adapter and notifyDataSetChanged");
         mRecyclerView.setAdapter(mMovieAdapter);
         mMovieAdapter.notifyDataSetChanged();
-
     }
 
     // invoked when the activity may be temporarily destroyed, save the instance state here
@@ -133,7 +153,18 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
     protected void onResume() {
         super.onResume();
 
+        initializeLoaders();
         startAdapter();
+        Log.d(TAG, "onResume: called. MovieAdapter size: " + mMovieAdapter.getItemCount());
+        Log.d(TAG, "onResume: movie size " + movies.size());
+
+        // As onLoadFinished is not called on onResume, check there are no longer any favorites
+        if (mMovieFilter != null && mMovieFilter.equals("favorites") && mMovieAdapter.getItemCount() < 1) {
+            Log.d(TAG, "onResume: No favorites found");
+            displayNoFavoritesFound();
+        } else {
+            displayItemsFound();
+        }
 
     }
 
@@ -224,8 +255,16 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
-        // Build the TMDB url and begin a new MovieLoader
+        // Build the TMDB url and begin a new MovieLoader, or fetch favorites from a Cursor and
+        // return them as an ArrayList.
         Log.d(TAG, "onCreateLoader: Movies: Started");
+
+        // Initial state: show the progress loading indicator and hide any messages
+        mProgressBar.setVisibility(View.VISIBLE);
+        mErrorTextView.setVisibility(View.INVISIBLE);
+
+        // If there is no internet connection abandon the loader
+
         URL url = NetworkUtils.createUrl(mMovieFilter);
 
         switch (id) {
@@ -242,14 +281,16 @@ public class LibraryActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
-        // When finished check if the internet is enabled first and that movies has some items
-        int id = loader.getId();
-        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " +
-                movies.size() + " - " + loader.getId() + " - Spinner: " + spinnerPos);
+        Log.d(TAG, "onLoadFinished: Movies: Finished: movies = " + movies.size());
+        mProgressBar.setVisibility(View.INVISIBLE);
+
+        // Clear the adapter first
         mMovieAdapter.clear();
 
-        if (!checkInternetConnection()) {
-            displayItemsNotFound();
+        if (mMovieFilter != null && mMovieFilter.equals("favorites") && movies.size() < 1) {
+            displayNoFavoritesFound();
+        } else if (!checkInternetConnection() && (!mMovieFilter.equals("favorites"))) {
+            displayNoItemsFound();
         } else if (movies.size() > 0) {
             displayItemsFound();
             mMovieAdapter.addAll(movies);

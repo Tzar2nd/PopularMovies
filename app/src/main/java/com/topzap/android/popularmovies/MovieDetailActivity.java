@@ -3,8 +3,7 @@ package com.topzap.android.popularmovies;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,15 +11,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.support.v4.app.LoaderManager;
+import android.app.LoaderManager;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.MovieContract;
 
+import java.util.ArrayList;
+
 public class MovieDetailActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
     private String TAG = MovieDetailActivity.class.getSimpleName();
 
@@ -65,7 +66,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.detail_menu, this.menu);
-        getSupportLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
+        getLoaderManager().initLoader(FAVORITE_LOADER_ID, null, this);
         return true;
     }
 
@@ -103,14 +104,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
         // Check if the URI has successfully inserted a favorite
         if (uri != null) {
-            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), R.string.favorite_added, Toast.LENGTH_SHORT).show();
             favorite = true;
-            changeFavoriteIcon(favorite);
-        } else {
-            Toast.makeText(this, "URI not recognised: " + uri.toString(), Toast.LENGTH_SHORT).show();
+            showFavoriteIcon(favorite);
         }
 
-        getSupportLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
     }
 
     public void deleteFavoriteMovie() {
@@ -120,59 +119,52 @@ public class MovieDetailActivity extends AppCompatActivity implements
         getContentResolver().delete(deleteUri, null, null);
 
         // COMPLETED (3) Restart the loader to re-query for all tasks after a deletion
-        getSupportLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(FAVORITE_LOADER_ID, null, this);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
         Uri favoriteUri = Uri.withAppendedPath(MovieContract.MovieEntry.CONTENT_URI, movieId);
 
         Log.d(TAG, "onCreateLoader favoriteUri: " + favoriteUri);
 
-        String[] projection = {
-                MovieContract.MovieEntry.COLUMN_ID,
-                MovieContract.MovieEntry.COLUMN_TITLE};
-
-        return new CursorLoader(this,
-                favoriteUri,
-                projection,
-                null,
-                null,
-                null
-        );
+        return new FavoriteLoader(MovieDetailActivity.this, favoriteUri);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
 
-        if (cursor == null) {
-            Log.d(TAG, "NO DATA FOUND");
+        if (movies.size() < 1) {
+            Log.d(TAG, "NO FAVORITE DATA FOUND");
+            favorite = false;
+            showFavoriteIcon(favorite);
         } else {
 
             // Set the favorite icon and boolean to Yes or No depending on whether it is found
             // in the database.
-            if (cursor.moveToFirst()) {
-                {
-                    Log.d(TAG, "FOUND AS FAVORITE: " + cursor.getString(cursor.getColumnIndex("title")));
-                    favorite = true;
-                    changeFavoriteIcon(favorite);
+            if (movies.size() > 0) {
+                for(Movie currentMovie : movies) {
+                    Log.d(TAG, "FOUND AS FAVORITE: " + currentMovie.getTitle());
                 }
+                favorite = true;
+                showFavoriteIcon(favorite);
             } else {
-                Log.d(TAG, "NO FAVORITE FOUND");
                 favorite = false;
-                changeFavoriteIcon(favorite);
+                Log.d(TAG, "NOT A FAVORITE");
+                showFavoriteIcon(favorite);
             }
         }
 
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<ArrayList<Movie>> loader) {
     }
 
-    public void changeFavoriteIcon(boolean favorited) {
+    public void showFavoriteIcon(boolean isFavorite) {
+        favorite = isFavorite;
         // Set the menuItem to favorite and favorite boolean to true
-        if (favorited) {
+        if (favorite) {
             MenuItem favoriteItem = menu.findItem(R.id.menu_favorite);
             favoriteItem.setIcon(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
         } else {

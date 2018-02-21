@@ -17,6 +17,8 @@
         android:id="@+id/tv_library_error_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/app_default_margin"
+        android:paddingRight="@dimen/app_default_margin"
         android:text="@string/error_no_library_movies_found"
         android:layout_gravity="center"
         android:textSize="@dimen/error_message_text_size"
