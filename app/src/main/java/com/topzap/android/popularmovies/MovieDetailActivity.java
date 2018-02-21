@@ -94,7 +94,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
     public class getTrailersTask extends AsyncTask<String, Void, ArrayList<Trailer>> {
         private final String TAG = MovieDetailActivity.class.getClass().getSimpleName();
 
-
         @Override
         protected ArrayList<Trailer> doInBackground(String... strings) {
             return null;
