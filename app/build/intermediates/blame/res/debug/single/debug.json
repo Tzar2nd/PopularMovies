@@ -372,6 +372,10 @@
         "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/drawable-mdpi-v4/abc_ic_star_black_48dp.png"
     },
     {
+        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/layout_activity_movie_detail_review_popup.xml.flat",
+        "source": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/src/main/res/layout/activity_movie_detail_review_popup.xml"
+    },
+    {
         "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable_abc_btn_colored_material.xml.flat",
         "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/drawable/abc_btn_colored_material.xml"
     },
@@ -648,16 +652,16 @@
         "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/drawable-mdpi-v4/abc_switch_track_mtrl_alpha.9.png"
     },
     {
-        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/layout_select_dialog_singlechoice_material.xml.flat",
-        "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/layout/select_dialog_singlechoice_material.xml"
+        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_list_focused_holo.9.png.flat",
+        "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/drawable-mdpi-v4/abc_list_focused_holo.9.png"
     },
     {
         "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable-hdpi-v4_notification_bg_normal.9.png.flat",
         "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/e19d2fbf284eb2ea0b2fc324fff4ce6f/res/drawable-hdpi-v4/notification_bg_normal.9.png"
     },
     {
-        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_list_focused_holo.9.png.flat",
-        "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/drawable-mdpi-v4/abc_list_focused_holo.9.png"
+        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/layout_select_dialog_singlechoice_material.xml.flat",
+        "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/layout/select_dialog_singlechoice_material.xml"
     },
     {
         "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_ic_star_black_16dp.png.flat",
@@ -1478,6 +1482,10 @@
     {
         "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/color-v11_abc_background_cache_hint_selector_material_dark.xml.flat",
         "source": "/Users/bensmith/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/ad29bf6504417c94bf4f10041b097a5f/res/color-v11/abc_background_cache_hint_selector_material_dark.xml"
+    },
+    {
+        "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/layout_recyclerview_review_item.xml.flat",
+        "source": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/src/main/res/layout/recyclerview_review_item.xml"
     },
     {
         "merged": "/Users/bensmith/Dropbox/Coding/Practice/PopularMoviesPartTwo/app/build/intermediates/res/merged/debug/drawable-mdpi-v4_abc_spinner_mtrl_am_alpha.9.png.flat",

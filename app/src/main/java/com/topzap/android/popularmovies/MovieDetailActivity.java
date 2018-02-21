@@ -9,6 +9,9 @@ import android.content.Loader;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +24,7 @@ import com.squareup.picasso.Picasso;
 import com.topzap.android.popularmovies.data.Movie;
 import com.topzap.android.popularmovies.data.MovieContract;
 import com.topzap.android.popularmovies.data.Review;
+import com.topzap.android.popularmovies.data.ReviewAdapter;
 import com.topzap.android.popularmovies.utils.NetworkUtils;
 
 import java.net.URL;
@@ -36,8 +40,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private String movieId;
     private Menu menu;
     private boolean favorite = false;
-
-    TextView movieReviewsTextView;
+    private RecyclerView mRecyclerView;
 
     ArrayList<Review> reviews = new ArrayList<>();
     Movie currentMovie;
@@ -54,7 +57,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
         TextView releaseDateTextView = findViewById(R.id.release_date_body);
         TextView userRatingTextView = findViewById(R.id.user_rating_body);
         TextView moviePlotTextView = findViewById(R.id.plot_summary_body);
-        movieReviewsTextView = findViewById(R.id.movie_reviews);
 
         if (mMovieData != null) {
             // If there is movie data then get parcelable data from the movie data passed in
@@ -70,7 +72,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
             moviePlotTextView.setText(currentMovie.getPlot());
         }
 
-        // Launch Async task to obtain
+        // Set up the Reviews RecyclerView
+        mRecyclerView = findViewById(R.id.recyclerview_reviews);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setNestedScrollingEnabled(false);
+
+        // Launch Async task to obtain data for review recyclerview adpater
         new getReviewsTask().execute(movieId);
     }
 
@@ -98,11 +105,15 @@ public class MovieDetailActivity extends AppCompatActivity implements
         @Override
         protected void onPostExecute(ArrayList<Review> reviewResult) {
             reviews.addAll(reviewResult);
+
+            ReviewAdapter mReviewAdapter = new ReviewAdapter(MovieDetailActivity.this, reviews);
+            mRecyclerView.setAdapter(mReviewAdapter);
+            mReviewAdapter.notifyDataSetChanged();
+
             for (Review review: reviews) {
                 Log.d(TAG, "onPostExecute: " + review.getAuthor());
 
-                movieReviewsTextView.append(review.getAuthor() + "\n\n");
-                movieReviewsTextView.append(review.getContent() + "\n\n");
+
             }
         }
     }

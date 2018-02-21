@@ -1,41 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    >
 
     <TextView
         android:id="@+id/review_author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        android:padding="@dimen/app_default_margin_small"
         android:lines="1"
+        android:paddingTop="@dimen/app_default_margin_small"
+        android:paddingLeft="@dimen/app_default_margin"
+        android:paddingRight="@dimen/app_default_margin"
+        android:textSize="14sp"
+        android:textStyle="bold"
         tools:text="Benjamin Smyth"
+        android:background="@android:color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/review_divider"
         />
 
     <View
-        app:layout_constraintLeft_toRightOf="@id/review_author"
+        android:id="@+id/review_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/app_default_margin"
+        android:layout_marginRight="@dimen/app_default_margin"
+        android:background="@color/colorAccent"
+        app:layout_constraintTop_toBottomOf="@id/review_author"
         app:layout_constraintBottom_toTopOf="@id/review_content"
-        android:id="@+id/review_color_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        app:layout_constraintStart_toStartOf="@id/review_author"
+        app:layout_constraintEnd_toEndOf="@id/review_author"
         />
 
     <TextView
+        android:paddingTop="@dimen/app_default_margin_small"
         android:id="@+id/review_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="@dimen/app_default_margin_small"
-        android:paddingLeft="@dimen/app_default_margin_small"
-        android:lines="3"
         android:ellipsize="end"
+        android:background="@android:color/black"
+        android:lines="3"
+        android:paddingLeft="@dimen/app_default_margin"
+        android:paddingBottom="@dimen/app_default_margin_small"
+        android:paddingRight="@dimen/app_default_margin"
+        app:layout_constraintTop_toBottomOf="@id/review_divider"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
         tools:text="@string/lorem_ipsum_three_lines"
-        app:layout_constraintTop_toBottomOf="@id/review_author"
         />
 
 

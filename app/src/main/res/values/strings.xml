@@ -15,5 +15,6 @@
     <string name="favourite">Favourite</string>
     <string name="zero_favorites">You have no favorites! Please add a favorite from Popular or Top Movies :)</string>
     <string name="favorite_added">Favorite added</string>
+    <string name="user_reviews_header">User Reviews</string>
 
 </resources>

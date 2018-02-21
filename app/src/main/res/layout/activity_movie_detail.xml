@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="9"/>
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/movie_details_scrollview"
 
         android:scrollbarThumbVertical="@color/colorPrimaryText"
@@ -90,6 +90,14 @@
                 tools:text="@string/lorem_ipsum_three_lines"
                 />
 
+            <TextView
+                android:id="@+id/reviews_header"
+                style="@style/MovieDetailHeader"
+                android:textSize="16sp"
+                android:textColor="@color/colorSubHeaders"
+                android:text="@string/user_reviews_header"
+                />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview_reviews"
                 android:layout_width="match_parent"
@@ -98,7 +106,7 @@
 
 
         </LinearLayout>
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 
 </android.support.constraint.ConstraintLayout>
