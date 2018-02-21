@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/review_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:padding="@dimen/app_default_margin_small"
+        android:lines="1"
+        tools:text="Benjamin Smyth"
+        />
+
+    <View
+        app:layout_constraintLeft_toRightOf="@id/review_author"
+        app:layout_constraintBottom_toTopOf="@id/review_content"
+        android:id="@+id/review_color_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        />
+
+    <TextView
+        android:id="@+id/review_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="@dimen/app_default_margin_small"
+        android:paddingLeft="@dimen/app_default_margin_small"
+        android:lines="3"
+        android:ellipsize="end"
+        tools:text="@string/lorem_ipsum_three_lines"
+        app:layout_constraintTop_toBottomOf="@id/review_author"
+        />
+
+
+</android.support.constraint.ConstraintLayout>

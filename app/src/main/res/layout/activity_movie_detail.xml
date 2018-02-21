@@ -90,6 +90,12 @@
                 tools:text="@string/lorem_ipsum_three_lines"
                 />
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
 
         </LinearLayout>
     </ScrollView>

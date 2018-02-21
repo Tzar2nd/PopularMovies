@@ -1,5 +1,6 @@
 package com.topzap.android.popularmovies;
 
+import android.annotation.SuppressLint;
 import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -32,13 +33,13 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     private static final String mIntentFlag = "MOVIE";
     private static final int FAVORITE_LOADER_ID = 2;
-
-    private static final ArrayList<Review> reviews = new ArrayList<>();
-
     private String movieId;
     private Menu menu;
     private boolean favorite = false;
 
+    TextView movieReviewsTextView;
+
+    ArrayList<Review> reviews = new ArrayList<>();
     Movie currentMovie;
 
     @Override
@@ -53,6 +54,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
         TextView releaseDateTextView = findViewById(R.id.release_date_body);
         TextView userRatingTextView = findViewById(R.id.user_rating_body);
         TextView moviePlotTextView = findViewById(R.id.plot_summary_body);
+        movieReviewsTextView = findViewById(R.id.movie_reviews);
 
         if (mMovieData != null) {
             // If there is movie data then get parcelable data from the movie data passed in
@@ -68,13 +70,18 @@ public class MovieDetailActivity extends AppCompatActivity implements
             moviePlotTextView.setText(currentMovie.getPlot());
         }
 
+        // Launch Async task to obtain
         new getReviewsTask().execute(movieId);
     }
 
+    /**
+     * Async Task for obtaining reviews.
+     */
 
-    public static class getReviewsTask extends AsyncTask<String, Void, ArrayList<Review>> {
+    @SuppressLint("StaticFieldLeak")
+    public class getReviewsTask extends AsyncTask<String, Void, ArrayList<Review>> {
 
-        private static final String TAG = MovieDetailActivity.class.getClass().getSimpleName();
+        private final String TAG = MovieDetailActivity.class.getClass().getSimpleName();
 
         @Override
         protected ArrayList<Review> doInBackground(String... movieId) {
@@ -93,6 +100,9 @@ public class MovieDetailActivity extends AppCompatActivity implements
             reviews.addAll(reviewResult);
             for (Review review: reviews) {
                 Log.d(TAG, "onPostExecute: " + review.getAuthor());
+
+                movieReviewsTextView.append(review.getAuthor() + "\n\n");
+                movieReviewsTextView.append(review.getContent() + "\n\n");
             }
         }
     }
